@@ -1,71 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SongsContext } from './SongsContext';
 
 export const SongsProvider = ({ children }) => {
-    const [songs, setSongs] = useState([]);
-    const [currentSong, setCurrentSong] = useState('');
+    const [playlist, setPlaylist] = useState([]);
+    const [currentSong, setCurrentSong] = useState(-1);
     const [currentUrl, setCurrentUrl] = useState('');
 
-    const findSong = () => {
-        const filteredSong = songs.find(song => song.name.toLowerCase().includes(currentSong.toLowerCase()));
-        if (filteredSong) {
-            setCurrentUrl(filteredSong.url);
-        } else {
-            setCurrentUrl('');
-        }
-    };
-
-    const getSongs = async () => {
+    const getPlaylist = async () => {
         const request = await fetch('https://playground.4geeks.com/sound/songs', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            method: 'GET'
         });
         const response = await request.json();
-        
-        const uniqueSongs = response.songs.filter((song, index, self) =>
-            index === self.findIndex((s) => s.name === song.name)
-        );
-        
-        setSongs(uniqueSongs);
+        setPlaylist(response.songs);
     };
-    
+
+    const updateUrl = () => {
+        const filteredSound = playlist.filter(song => song.id === currentSong);
+        currentSong !== -1 ? setCurrentUrl(filteredSound[0].url) : console.log('Aun no has seleccionado una cancion')
+
+    }
 
     const nextSong = () => {
-        if (songs.length > 0 && currentUrl) {
-            const index = songs.findIndex(song => song.url === currentUrl);
-                const nextIndex = index + 1;
-                const nextSong = songs[nextIndex];
-                setCurrentUrl(nextSong.url);
-                setCurrentSong(nextSong.name);
-        }
+        currentSong === playlist.length ? setCurrentSong(1) : setCurrentSong(currentSong + 1)
     };
-    
-    const previuSong = () => {
-        if (songs.length > 0 && currentUrl) {
-            const index = songs.findIndex(song => song.url === currentUrl);
-                const prevIndex = index - 1;
-                const prevSong = songs[prevIndex];
-                setCurrentUrl(prevSong.url);
-                setCurrentSong(prevSong.name);
-        }
+
+    const previousSong = () => {
+        currentSong === 1 ? setCurrentSong(playlist.length) : setCurrentSong(currentSong - 1)
     };
-    
-    
-    
-    
+
+
+
     useEffect(() => {
-        getSongs();
+        getPlaylist();
     }, []);
 
     useEffect(() => {
-        findSong();
+        updateUrl();
     }, [currentSong]);
 
     return (
-        <SongsContext.Provider value={{ songs, setSongs, setCurrentSong, currentSong, currentUrl,nextSong,previuSong }}>
+        <SongsContext.Provider value={{ playlist, setPlaylist, currentSong, setCurrentSong, currentUrl, setCurrentUrl, nextSong, previousSong }}>
             {children}
         </SongsContext.Provider>
     );
-};
+}
