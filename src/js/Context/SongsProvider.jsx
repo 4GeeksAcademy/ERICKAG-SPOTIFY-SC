@@ -3,7 +3,7 @@ import { SongsContext } from './SongsContext';
 
 export const SongsProvider = ({ children }) => {
     const [playlist, setPlaylist] = useState([]);
-    const [currentSong, setCurrentSong] = useState(-1);
+    const [currentSong, setCurrentSong] = useState(0);
     const [currentUrl, setCurrentUrl] = useState('');
 
     const getPlaylist = async () => {
@@ -16,7 +16,7 @@ export const SongsProvider = ({ children }) => {
 
     const updateUrl = () => {
         const filteredSound = playlist.filter(song => song.id === currentSong);
-        currentSong !== -1 ? setCurrentUrl(filteredSound[0].url) : console.log('Aun no has seleccionado una cancion')
+        currentSong !== 0? setCurrentUrl(filteredSound[0].url) : console.log('Aun no has seleccionado una cancion')
 
     }
 
